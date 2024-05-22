@@ -1,7 +1,7 @@
 
 import os
 import torch
-os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2"
+os.environ["CUDA_VISIBLE_DEVICES"]="2,3,4,5"
 print("Limpando cache")
 torch.cuda.empty_cache()
 
@@ -15,10 +15,11 @@ import random
 
 # Smaller than the original GPT-2, only 6 layers (instead of 12), 12 heads, 768 dimensions (like GPT-2)
 model_name = "gpt2-medium" # "gpt2-medium" # distilgpt2 #gpt2-large it reachs the maximum gpu capacity
-experiment_name = "pet"
+experiment_name = "olist"
 
-print("reading the dataset")
-df = pd.read_csv(f"/hadatasets/fillipe.silva/LLMSegm/data/{experiment_name}/train.csv")
+path_to_train = f"/hadatasets/fillipe.silva/LLMSegm/data/{experiment_name}/train_rfm.csv"
+print("reading the dataset", path_to_train)
+df = pd.read_csv(path_to_train)
 columns = df.columns.tolist()
 ds = Dataset.from_pandas(df)
 
@@ -61,9 +62,9 @@ def tokenizer_function(sample):
 tokenizer_ds = combined_ds.map(tokenizer_function, batched=True)
 tokenizer_ds.set_format("torch")
 
-print("Loading the model")
-model = AutoModelForCausalLM.from_pretrained(model_name)
-epochs = 100
+print(f"Loading the model {model_name} from hugginface")
+model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, torch_dtype="auto")
+epochs = 10
 batch_size = 16
 print("epochs", epochs)
 print("batch_size", batch_size)
@@ -76,23 +77,23 @@ trainer = Trainer(model, training_args, train_dataset=tokenizer_ds, tokenizer=to
 print("Trainer.train()")
 trainer.train() 
 
-print("Saving the model")
-model_name = model_name + "_" + str(epochs) + ".pt"
+model_name = model_name.replace("/","_") + "_" + str(epochs) + ".pt"
 model_path = f"/hadatasets/fillipe.silva/LLMSegm/models/{experiment_name}/{model_name}"
+print(f"Saving the model in: {model_path}")
 torch.save(model.state_dict(), model_path)
 
-print("Reading dataset for embedding generation")
-val_df = pd.read_csv(f"/hadatasets/fillipe.silva/LLMSegm/data/{experiment_name}/test.csv")
+path_to_test = f"/hadatasets/fillipe.silva/LLMSegm/data/{experiment_name}/test_rfm.csv"
+print(f"Reading dataset for embedding generation {path_to_test}")
+val_df = pd.read_csv(path_to_test)
 columns = val_df.columns.tolist()
 ds = Dataset.from_pandas(val_df)
-
 
 combined_ds = ds.map(combine_data_shuffled)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-print("Computing embediings")
+print("Computing embbedings")
 embs = []
 for text in combined_ds["concat"]:
     inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True).to(device)
@@ -110,9 +111,10 @@ for text in combined_ds["concat"]:
     embs.append(text_embedding_np[0])
 
 
-print("Saving embeddings")
+path_to_save_embds = f"/hadatasets/fillipe.silva/LLMSegm/data/{experiment_name}/{model_name.replace(".pt","")}_test_embeddings_rfm.csv"
+print("Saving embeddings in {path_to_save_embds}")
 embedding_df = pd.DataFrame(embs)
-embedding_df.to_csv(f'/hadatasets/fillipe.silva/LLMSegm/data/{experiment_name}/{model_name.replace(".pt","").replace("/","")}_test_embeddings.csv', index=False)
+embedding_df.to_csv(path_to_save_embds, index=False)
 
 print("Limpando cache")
 torch.cuda.empty_cache()

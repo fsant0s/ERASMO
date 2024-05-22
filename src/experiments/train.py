@@ -12,6 +12,8 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments,
 from datasets import Dataset
 
 import random
+import inflect
+import re
 
 # Smaller than the original GPT-2, only 6 layers (instead of 12), 12 heads, 768 dimensions (like GPT-2)
 model_name = "gpt2-medium" # "gpt2-medium" # distilgpt2 #gpt2-large it reachs the maximum gpu capacity
@@ -37,7 +39,26 @@ def combine_data_shuffled(sample):
 
     return {"concat": concat}
 
+def convert_numbers_to_words(sentence):
+    def convert(match):
+        number = match.group(0)
+        if '.' in number:
+            # Handle floating-point numbers
+            integer_part, fractional_part = number.split('.')
+            integer_word = p.number_to_words(integer_part)
+            fractional_word = p.number_to_words(fractional_part)
+            return f"{integer_word} point {fractional_word}"
+        else:
+            # Handle integers
+            return p.number_to_words(number)
+    
+    # Regular expression to find numbers
+    pattern = re.compile(r'\d+(\.\d+)?')
+    converted_sentence = pattern.sub(convert, sentence)
+    return converted_sentence
+
 # Shuffle the features or not
+p = inflect.engine()
 shuffle = True 
 if shuffle:
     combined_ds = ds.map(combine_data_shuffled)
@@ -110,11 +131,3 @@ for text in combined_ds["concat"]:
 
     embs.append(text_embedding_np[0])
 
-
-path_to_save_embds = f"/hadatasets/fillipe.silva/LLMSegm/data/{experiment_name}/{model_name.replace(".pt","")}_test_embeddings_rfm.csv"
-print("Saving embeddings in {path_to_save_embds}")
-embedding_df = pd.DataFrame(embs)
-embedding_df.to_csv(path_to_save_embds, index=False)
-
-print("Limpando cache")
-torch.cuda.empty_cache()
