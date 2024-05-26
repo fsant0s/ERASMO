@@ -1,2 +1,7 @@
 src/models/*
 src/experiments/TODO
+
+src/banking_gpt2-medium_20_False
+src/banking_gpt2-medium_20_True
+src/olist_gpt2-medium_20_False
+src/olist_gpt2-medium_20_True

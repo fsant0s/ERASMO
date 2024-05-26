@@ -1,1 +1,1 @@
-# LLMSegm
+# ERASMO - genERAtion of uSer segMentatiOn
