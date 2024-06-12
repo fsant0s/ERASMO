@@ -1,0 +1,3 @@
+from .paraphrase_dice.dice import DICE
+from .paraphrase_dice.paraphrase_mpnet_embeddings import ParaphraseMpnetEmbeddings
+from .text_clustering.embedding_models import EmbeddingModels

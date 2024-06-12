@@ -1,1 +1,1 @@
-from .evaluate_clustering_performance import evaluate_clustering_performance
+from .clustering_quality_assessment import clustering_quality_assessment

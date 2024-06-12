@@ -23,4 +23,3 @@ def _array_to_dataframe(data: tp.Union[pd.DataFrame, np.ndarray], columns=None) 
         "%d column names are given, but array has %d columns!" % (len(columns), len(data[0]))
 
     return pd.DataFrame(data=data, columns=columns)
-

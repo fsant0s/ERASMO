@@ -33,14 +33,13 @@ class ErasmoDataset(Dataset):
     def _getitem(self, key: tp.Union[int, slice, str], decoded: bool = True, **kwargs) -> tp.Union[tp.Dict, tp.List]:
         """ Get Item from Tabular Data
 
-        Get one instance of the tabular data, permuted, converted to text and tokenized.
+        Get one instance of the tabular data, permuted, converted to text, transform text to num (if text_to_num is true), and tokenized.
         """
         # If int, what else?
         row = self._data.fast_slice(key, 1)
 
         shuffle_idx = list(range(row.num_columns))
         random.shuffle(shuffle_idx)
-    
         shuffled_text = ", ".join(
             ["%s is %s" % (row.column_names[i], str(row.columns[i].to_pylist()[0]).strip()) for i in shuffle_idx]
         )
@@ -54,8 +53,8 @@ class ErasmoDataset(Dataset):
         if not ErasmoDataset.has_printed:
             print("Random sample:", shuffled_text)
             ErasmoDataset.has_printed = True
-
-        tokenized_text = self.tokenizer(shuffled_text)
+        
+        tokenized_text = self.tokenizer(shuffled_text, padding='max_length', truncation=True)
         return tokenized_text
         
     def __getitems__(self, keys: tp.Union[int, slice, str, list]):
