@@ -61,12 +61,14 @@ To run the baselines, navigate to the `src/baselines` directory.
 For an interactive exploration and demonstration of the ERASMO framework, you can use the Jupyter Notebook provided: [**ERASMO Yelp Notebook**](https://github.com/fsant0s/ERASMO/blob/main/src/notebook/yelp.ipynb)
 
 ## Acknowledgements
-...
-<!---
-This project was supported by the Ministry of Science, Technology, and Innovation of Brazil, with resources granted by the Federal Law 8.248 of October 23, 1991, under the PPI-Softex. The project was coordinated by Softex and published as Intelligent agents for mobile platforms based on Cognitive Architecture technology [01245.013778/2020-21].
--->
+This project was supported by the brazilian Ministry of Science, Technology and Innovations, with resources from Law nº 8,248, of October 23, 1991, within the scope of PPI-SOFTEX, coordinated by Softex and published Arquitetura Cognitiva (Phase 3), DOU 01245.003479/2024 -10.
 
 ## Citation
 ```bash
-...
+@article{silva2024erasmo,
+  title={ERASMO: Leveraging Large Language Models for Enhanced Clustering Segmentation},
+  author={Silva, Fillipe dos Santos and Kakimoto, Gabriel Kenzo and Reis, Julio Cesar dos and Reis, Marcelo S},
+  journal={arXiv preprint arXiv:2410.03738},
+  year={2024}
+}
 ```
