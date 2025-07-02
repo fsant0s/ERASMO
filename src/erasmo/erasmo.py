@@ -108,8 +108,8 @@ class Erasmo:
 
             with torch.no_grad():
                 outputs = self.model(input_ids_tensor)
-                text_embedding = outputs.logits
-                embeddings.append(text_embedding.detach().cpu().numpy()[0])
+                text_embedding = outputs.hidden_states[-1]
+                embeddings.append(text_embedding.mean(dim=1).squeeze(0).detach().cpu().numpy())
         
         return pd.DataFrame(embeddings)
 
@@ -127,9 +127,9 @@ class Erasmo:
                 # Forward pass through the model
                 outputs = self.model(tokens_tensor)
                 # Retrieve the hidden states from the model output
-                hidden_states = outputs[0]  # 'outputs' is a tuple, the first element is the hidden states
+                hidden_states = outputs.hidden_states  # 'outputs' is a tuple, the first element is the hidden states
             # Averaging over the sequence length
-            embeddings.append(hidden_states[0].mean(dim=0).detach().cpu().numpy())
+            embeddings.append(hidden_states.mean(dim=1).squeeze(0).mean(dim=0).detach().cpu().numpy())
 
         return pd.DataFrame(embeddings)
 
